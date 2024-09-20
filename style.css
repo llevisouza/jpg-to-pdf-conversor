@@ -1,25 +1,63 @@
 body {
     font-family: Arial, sans-serif;
-
-    
-    background-position: center; /* Centraliza o GIF */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
-    background-color: #f0f0f0; /* Cor de fundo, caso o GIF não carregue */
+    background-color: #f0f0f0; /* Cor de fundo */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #283172;
+    padding: 10px 20px;
+    position: fixed; /* Fixa a barra de navegação no topo */
+    width: 100%;
+    top: 0;
+    z-index: 1000; /* Garante que a barra de navegação fique acima de outros elementos */
+}
+
+.navbar-logo img {
+    height: 50px;
+}
+
+.navbar-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.navbar-menu li {
+    margin: 0 15px;
+}
+
+.navbar-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    transition: background-color 0.3s;
+}
+
+.navbar-menu a:hover {
+    background-color: #575757;
+    border-radius: 4px;
 }
 
 .container {
-    
+    flex: 1; /* Faz com que o contêiner ocupe o espaço restante da página */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 70px; /* Adiciona espaço para a barra de navegação fixa */
     background-color: #ffffff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
     text-align: center;
-    
-    
 }
 
 h1 {
@@ -42,9 +80,20 @@ button {
 button:hover {
     background-color: #283172;
 }
+
 .marca-salvadorcard {
     position: absolute; /* Posiciona a imagem de forma absoluta */
     top: 60px; /* Distância do topo */
-    width: 100; /* Largura desejada */
+    width: 100px; /* Largura desejada */
     height: auto; /* Mantém a proporção */
 }
+.footer {
+    background-color: #283172;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed; /* Fixa o rodapé na parte inferior */
+    width: 100%;
+    bottom: 0;
+}
+
