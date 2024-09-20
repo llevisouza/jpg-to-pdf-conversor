@@ -10,13 +10,17 @@ body {
 .navbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start; /* Alinha os itens à esquerda */
     background-color: #283172;
     padding: 10px 20px;
     position: fixed; /* Fixa a barra de navegação no topo */
     width: 100%;
     top: 0;
     z-index: 1000; /* Garante que a barra de navegação fique acima de outros elementos */
+}
+
+.navbar-logo {
+    margin-right: 20px; /* Espaço entre o logo e o menu */
 }
 
 .navbar-logo img {
@@ -31,7 +35,7 @@ body {
 }
 
 .navbar-menu li {
-    margin: 0 15px;
+    margin: 0 20px;
 }
 
 .navbar-menu a {
@@ -78,7 +82,7 @@ button {
 }
 
 button:hover {
-    background-color: #283172;
+    background-color: #575757;
 }
 
 .marca-salvadorcard {
@@ -87,6 +91,7 @@ button:hover {
     width: 100px; /* Largura desejada */
     height: auto; /* Mantém a proporção */
 }
+
 .footer {
     background-color: #283172;
     color: white;
@@ -96,4 +101,3 @@ button:hover {
     width: 100%;
     bottom: 0;
 }
-
