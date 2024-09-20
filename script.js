@@ -1,4 +1,4 @@
-document.getElementById('convertBtn').addEventListener('click', function () {
+document.getElementById('convertBtn').addEventListener('click', async function () {
     const fileInput = document.getElementById('fileInput');
     const files = fileInput.files;
 
@@ -7,49 +7,59 @@ document.getElementById('convertBtn').addEventListener('click', function () {
         return;
     }
 
+    const zip = new JSZip();
     let convertedCount = 0; // Contador de arquivos convertidos
 
-    Array.from(files).forEach(file => {
-        const reader = new FileReader();
+    const promises = Array.from(files).map(file => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const imgData = event.target.result;
 
-        reader.onload = function (event) {
-            const imgData = event.target.result;
+                const img = new Image();
+                img.src = imgData;
 
-            const img = new Image();
-            img.src = imgData;
+                img.onload = function () {
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
 
-            img.onload = function () {
-                // Obtém as dimensões da imagem original
-                const imgWidth = img.width;
-                const imgHeight = img.height;
+                    const pdfWidth = imgWidth * 0.264583; // Conversão de pixels para mm
+                    const pdfHeight = imgHeight * 0.264583;
 
-                // Calcula as dimensões do PDF com base na imagem
-                const pdfWidth = imgWidth * 0.264583; // Conversão de pixels para mm
-                const pdfHeight = imgHeight * 0.264583;
+                    const { jsPDF } = window.jspdf;
+                    const orientation = imgWidth > imgHeight ? 'landscape' : 'portrait';
+                    const doc = new jsPDF(orientation, 'mm', [pdfWidth, pdfHeight]);
 
-                // Cria uma instância de jsPDF no modo apropriado
-                const { jsPDF } = window.jspdf;
-                const orientation = imgWidth > imgHeight ? 'landscape' : 'portrait';
-                const doc = new jsPDF(orientation, 'mm', [pdfWidth, pdfHeight]);
+                    doc.addImage(imgData, file.type === 'image/png' ? 'PNG' : 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
-                // Adiciona a imagem ao PDF com a largura e altura ajustadas
-                doc.addImage(imgData, file.type === 'image/png' ? 'PNG' : 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                    const pdfFilename = file.name.split('.')[0] + '.pdf';
+                    const pdfData = doc.output('blob');
 
-                // Salva o arquivo PDF
-                const pdfFilename = file.name.split('.')[0] + '.pdf';
-                doc.save(pdfFilename);
+                    zip.file(pdfFilename, pdfData);
 
-                convertedCount++; // Incrementa o contador
-                console.log("Converted: " + pdfFilename);
+                    convertedCount++;
+                    console.log("Converted: " + pdfFilename);
+                    resolve();
+                };
 
-                // Verifica se todos os arquivos foram convertidos
-                if (convertedCount === files.length) {
-                    alert("Conversion complete! Total converted: " + convertedCount);
-                }
+                img.onerror = function () {
+                    console.error("Error loading image: " + file.name);
+                    reject(); // Tratar erro
+                };
             };
-        };
+            reader.readAsDataURL(file);
+        });
+    });
 
-        // Lê o arquivo como uma URL base64
-        reader.readAsDataURL(file);
+    await Promise.all(promises); // Esperar todas as conversões
+
+    // Criar o arquivo ZIP e iniciar o download
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+        const zipFilename = "converted_images.zip";
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = zipFilename;
+        link.click();
+        alert("Conversion complete! Total converted: " + convertedCount);
     });
 });
