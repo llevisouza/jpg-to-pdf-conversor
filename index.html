@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PDF Converter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Convert Images to PDF</h1>
+        <label for="fileInput">Select images:</label>
+        <input type="file" id="fileInput" accept="image/jpeg, image/jpg" multiple>
+        
+        <button id="convertBtn">Convert to PDF</button>
+        <p id="status"></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        document.getElementById('convertBtn').addEventListener('click', async function () {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+
+            if (files.length === 0) {
+                alert("Please select some image files.");
+                return;
+            }
+
+            let convertedCount = 0;
+            const totalFiles = files.length;
+            const batchSize = 10; // Número de imagens a processar por vez
+            const delay = 100; // Delay em milissegundos entre conversões
+
+            document.getElementById('status').innerText = `Converting... ${convertedCount} of ${totalFiles}`;
+
+            async function processBatch(startIndex) {
+                for (let i = startIndex; i < Math.min(startIndex + batchSize, files.length); i++) {
+                    const file = files[i];
+                    if (!file.type.match('image/jpeg') && !file.type.match('image/jpg')) {
+                        alert(`File type not supported: ${file.name}`);
+                        continue;
+                    }
+
+                    const imgData = await readFile(file);
+                    const img = new Image();
+                    img.src = imgData;
+
+                    await new Promise((resolve) => {
+                        img.onload = function () {
+                            const imgWidth = img.width;
+                            const imgHeight = img.height;
+
+                            const pdfWidth = imgWidth * 0.264583;
+                            const pdfHeight = imgHeight * 0.264583;
+
+                            const { jsPDF } = window.jspdf;
+                            const orientation = imgWidth > imgHeight ? 'landscape' : 'portrait';
+                            const doc = new jsPDF(orientation, 'mm', [pdfWidth, pdfHeight]);
+
+                            doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+                            const pdfFilename = file.name.replace(/\.[^/.]+$/, "") + ".pdf";
+                            doc.save(pdfFilename);
+
+                            convertedCount++;
+                            console.log("Converted: " + pdfFilename);
+                            document.getElementById('status').innerText = `Converting... ${convertedCount} of ${totalFiles}`;
+
+                            resolve(); // Indicar que a conversão está completa
+                        };
+
+                        img.onerror = function () {
+                            console.error("Error loading image: " + file.name);
+                            alert("Error loading image: " + file.name);
+                            resolve(); // Continuar mesmo com erro
+                        };
+                    });
+
+                    // Adiciona um delay entre as conversões
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+
+                if (startIndex + batchSize < files.length) {
+                    await processBatch(startIndex + batchSize);
+                }
+            }
+
+            await processBatch(0); // Iniciar o processamento
+            alert("Conversion complete! Total converted: " + convertedCount);
+        });
+
+        function readFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => resolve(event.target.result);
+                reader.onerror = () => reject(new Error("Error reading file: " + file.name));
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+</body>
+</html>
