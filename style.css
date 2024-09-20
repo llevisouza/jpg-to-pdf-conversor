@@ -1,19 +1,25 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+
+    
+    background-position: center; /* Centraliza o GIF */
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
+    background-color: #f0f0f0; /* Cor de fundo, caso o GIF não carregue */
 }
 
 .container {
-    background-color: white;
+    
+    background-color: #ffffff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
     text-align: center;
+    
+    
 }
 
 h1 {
@@ -24,15 +30,21 @@ input, button {
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #283172;
 }
 
 button {
     cursor: pointer;
-    background-color: #28a745;
+    background-color: #283172;
     color: white;
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #283172;
+}
+.marca-salvadorcard {
+    position: absolute; /* Posiciona a imagem de forma absoluta */
+    top: 60px; /* Distância do topo */
+    width: 100; /* Largura desejada */
+    height: auto; /* Mantém a proporção */
 }

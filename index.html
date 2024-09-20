@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,15 +8,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <img src="image/marca-salvadorcard.png" class="marca-salvadorcard" alt="Marca SalvadorCard">
     <div class="container">
-        <h1>Convert Images to PDF</h1>
-        <label for="fileInput">Select images:</label>
+        <h1>Conversor de Imagens</h1>
+        <label for="fileInput">Selecionar Imagem:</label>
         <input type="file" id="fileInput" accept="image/jpeg, image/jpg" multiple>
         
-        <button id="convertBtn">Convert to PDF</button>
+        <button id="convertBtn">Converter PDF</button>
         <p id="status"></p>
+        <footer>
+            powered by Levi
+        </footer>
     </div>
-
+   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         document.getElementById('convertBtn').addEventListener('click', async function () {
