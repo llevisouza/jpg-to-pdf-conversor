@@ -6,7 +6,11 @@ body {
     display: flex;
     flex-direction: column;
 }
-
+.section-esquerda {
+    text-align: left; /* Alinha o textoa esquerda */
+    padding: 20px;
+    background-color: #f0f0f0;
+}
 .navbar {
     display: flex;
     align-items: center;
@@ -51,17 +55,17 @@ body {
 }
 
 .container {
-    flex: 1; /* Faz com que o contêiner ocupe o espaço restante da página */
+    width: 300px; /* Largura do contêiner */
+    height: 200px; /* Altura do contêiner */
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding-top: 70px; /* Adiciona espaço para a barra de navegação fixa */
-    background-color: #ffffff;
+    justify-content: center; /* Alinha os itens ao topo */
+    align-items: center; /* Alinha os itens à esquerda */
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    background-color: #ffffff; /* Cor de fundo do contêiner */
+    border: 1px solid #283172; /* Borda do contêiner */
+    border-radius: 8px; /* Cantos arredondados */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Sombra do contêiner */
 }
 
 h1 {
@@ -100,4 +104,24 @@ button:hover {
     position: fixed; /* Fixa o rodapé na parte inferior */
     width: 100%;
     bottom: 0;
+}
+/* Adicione isso ao seu arquivo style.css */
+.progress-container {
+    display: none; /* Inicialmente oculto */
+    width: 100%;
+    background-color: #f3f3f3;
+    border-radius: 5px;
+}
+
+#progressBar {
+    width: 0%;
+    height: 10px; /* Ajuste a altura conforme necessário */
+    background-color: #283172; /* Cor da barra */
+    border-radius: 5px;
+}
+
+
+#status {
+    margin-top: 10px; /* Espaço acima do texto de status */
+    font-weight: bold; /* Destaca o texto */
 }

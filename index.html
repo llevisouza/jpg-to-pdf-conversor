@@ -8,9 +8,9 @@
 </head>
 <header>
     <ul class="cores-topo">
-    <li>&nbsp;</li>
-    <li>&nbsp;</li>
-    <li>&nbsp;</li>
+        <li>&nbsp;</li>
+        <li>&nbsp;</li>
+        <li>&nbsp;</li>
     </ul>
 </header>
 <body>
@@ -25,20 +25,28 @@
             <li><a href="#contact">Contato</a></li>!-->
         </ul>
     </nav>
-    <div class="container">
-        <h1>Conversor de Imagens</h1>
-        <label for="fileInput">Selecionar Imagens:</label>
-        <input type="file" id="fileInput" accept="image/jpeg, image/jpg" multiple>
-        
-        <button id="convertBtn">Converter PDF</button>
-        <p id="status"></p>
-        <footer class="footer"></footer>
-            <p>Desenvolvido por Levi.</p>
-        </footer>
-    </div>
-   
+    
+    <section class="section-esquerda">
+        <div class="container">
+            <h1>Conversor de Imagens</h1>
+            <label for="fileInput">Selecionar Imagens:</label>
+            <input type="file" id="fileInput" accept="image/jpeg, image/jpg" multiple>
+            <div class="progress-container" style="display: none;">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <button id="convertBtn">Converter PDF</button>
+            <p id="status"></p>
+
+            <footer class="footer">
+                <p>Desenvolvido por Levi.</p>
+            </footer>
+        </div>
+    </section>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+   
     <script>
         document.getElementById('convertBtn').addEventListener('click', async function () {
             const fileInput = document.getElementById('fileInput');
@@ -56,6 +64,7 @@
             const delay = 100; // Delay em milissegundos entre conversões
 
             document.getElementById('status').innerText = `Converting... ${convertedCount} of ${totalFiles}`;
+            document.querySelector('.progress-container').style.display = 'block';
 
             async function processBatch(startIndex) {
                 for (let i = startIndex; i < Math.min(startIndex + batchSize, files.length); i++) {
@@ -91,6 +100,7 @@
                             convertedCount++;
                             console.log("Converted: " + pdfFilename);
                             document.getElementById('status').innerText = `Converting... ${convertedCount} of ${totalFiles}`;
+                            document.getElementById('progressBar').style.width = `${(convertedCount / totalFiles) * 100}%`;
 
                             resolve(); // Indicar que a conversão está completa
                         };
@@ -122,6 +132,7 @@
                 link.click();
                 alert("Conversão completa! Total convertido: " + convertedCount);
                 document.getElementById('status').innerText = ""; // Limpar o status após a conclusão
+                document.querySelector('.progress-container').style.display = 'none'; // Ocultar barra de progresso
             });
         });
 

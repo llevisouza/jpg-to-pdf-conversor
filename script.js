@@ -3,55 +3,81 @@ document.getElementById('convertBtn').addEventListener('click', async function (
     const files = fileInput.files;
 
     if (files.length === 0) {
-        alert("Please select some image files.");
+        alert("Por favor, selecione alguns arquivos de imagem.");
         return;
     }
 
     const zip = new JSZip();
-    let convertedCount = 0; // Contador de arquivos convertidos
+    let convertedCount = 0;
+    const totalFiles = files.length;
+    const batchSize = 10; // Número de imagens a processar por vez
+    const delay = 100; // Delay em milissegundos entre conversões
 
-    const promises = Array.from(files).map(file => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                const imgData = event.target.result;
+    document.getElementById('status').innerText = `Converting... ${convertedCount} of ${totalFiles}`;
 
-                const img = new Image();
-                img.src = imgData;
+    // Mostrar a barra de progresso
+    const progressContainer = document.querySelector('.progress-container');
+    const progressBar = document.getElementById('progressBar');
+    progressContainer.style.display = 'block'; // Tornar visível
+    
 
-                img.onload = function () {
+    async function processBatch(startIndex) {
+        for (let i = startIndex; i < Math.min(startIndex + batchSize, files.length); i++) {
+            const file = files[i];
+            if (!file.type.match('image/jpeg') && !file.type.match('image/jpg')) {
+                alert(`Tipo de arquivo não suportado: ${file.name}`);
+                continue; // Continua para o próximo arquivo
+            }
+
+            const imgData = await readFile(file);
+            const img = new Image();
+            img.src = imgData;
+
+            await new Promise((resolve) => {
+                img.onload = async function () {
                     const imgWidth = img.width;
                     const imgHeight = img.height;
 
-                    const pdfWidth = imgWidth * 0.264583; // Conversão de pixels para mm
+                    const pdfWidth = imgWidth * 0.264583;
                     const pdfHeight = imgHeight * 0.264583;
 
                     const { jsPDF } = window.jspdf;
                     const orientation = imgWidth > imgHeight ? 'landscape' : 'portrait';
                     const doc = new jsPDF(orientation, 'mm', [pdfWidth, pdfHeight]);
 
-                    doc.addImage(imgData, file.type === 'image/png' ? 'PNG' : 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                    doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
-                    const pdfFilename = file.name.split('.')[0] + '.pdf';
+                    const pdfFilename = file.name.replace(/\.[^/.]+$/, "") + ".pdf";
                     const pdfData = doc.output('blob');
 
                     zip.file(pdfFilename, pdfData);
 
+                    // Atualiza o contador e a barra de progresso
                     convertedCount++;
-                    console.log("Converted: " + pdfFilename);
-                    resolve();
+                    document.getElementById('status').innerText = `Converting... ${convertedCount} of ${totalFiles}`;
+                    progressBar.style.width = `${(convertedCount / totalFiles) * 100}%`; // Atualiza a barra de progresso
+
+                    resolve(); // Indica que a conversão está completa
                 };
 
                 img.onerror = function () {
-                    console.error("Error loading image: " + file.name);
-                    reject(); // Tratar erro
+                    console.error("Erro ao carregar imagem: " + file.name);
+                    alert("Erro ao carregar imagem: " + file.name);
+                    resolve(); // Continua mesmo com erro
                 };
-            };
-            reader.readAsDataURL(file);
-        });
-    });
+            });
 
-    await Promise.all(promises); // Esperar todas as conversões
+            // Adiciona um delay entre as conversões
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+
+        // Chama a próxima batch se houver
+        if (startIndex + batchSize < files.length) {
+            await processBatch(startIndex + batchSize);
+        }
+    }
+
+    await processBatch(0); // Iniciar o processamento
 
     // Criar o arquivo ZIP e iniciar o download
     zip.generateAsync({ type: "blob" }).then(function (content) {
@@ -60,6 +86,11 @@ document.getElementById('convertBtn').addEventListener('click', async function (
         link.href = URL.createObjectURL(content);
         link.download = zipFilename;
         link.click();
-        alert("Conversion complete! Total converted: " + convertedCount);
+        alert("Conversão completa! Total convertido: " + convertedCount);
+        document.getElementById('status').innerText = ""; // Limpar o status após a conclusão
+
+        // Esconder a barra de progresso
+        progressContainer.style.display = 'none';
+        progressBar.style.width = '0%'; // Reiniciar a barra de progresso
     });
 });
