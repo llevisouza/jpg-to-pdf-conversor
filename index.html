@@ -6,14 +6,14 @@
     <title>Image to PDF Converter</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<header>
-    <ul class="cores-topo">
-        <li>&nbsp;</li>
-        <li>&nbsp;</li>
-        <li>&nbsp;</li>
-    </ul>
-</header>
 <body>
+    <header>
+        <ul class="cores-topo">
+            <li>&nbsp;</li>
+            <li>&nbsp;</li>
+            <li>&nbsp;</li>
+        </ul>
+    </header>
     <nav class="navbar">
         <div class="navbar-logo">
             <img src="img/marca-salvadorcard.png" alt="Logo">
@@ -21,21 +21,22 @@
         <ul class="navbar-menu">
             <li><a href="#home">Home</a></li>
             <li><a href="#about">Sobre</a></li>
-            <!--<li><a href="#services">Serviços</a></li>
-            <li><a href="#contact">Contato</a></li>!-->
         </ul>
     </nav>
-    
+
     <section class="section-esquerda">
         <div class="container">
-            <h1>Conversor de Imagens</h1>
+            <h1>Imagem Para PDF</h1>
             <label for="fileInput">Selecionar Imagens:</label>
             <input type="file" id="fileInput" accept="image/jpeg, image/jpg" multiple>
             <div class="progress-container" style="display: none;">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
 
-            <button id="convertBtn">Converter PDF</button>
+            <div class="button-container">
+                <button id="convertBtn">Converter PDF</button>
+                <button id="stopBtn" disabled>Parar</button>
+            </div>
             <p id="status"></p>
 
             <footer class="footer">
@@ -46,28 +47,49 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-   
+
     <script>
+        let isProcessing = false; // Estado de processamento
+        let shouldStop = false;   // Estado de parada
+        let convertedCount = 0;   // Contador de imagens convertidas
+        const totalFiles = 0;     // Total de arquivos
+        const files = [];         // Lista de arquivos a serem processados
+
         document.getElementById('convertBtn').addEventListener('click', async function () {
             const fileInput = document.getElementById('fileInput');
-            const files = fileInput.files;
-
+            files.push(...fileInput.files); // Adiciona arquivos ao array
             if (files.length === 0) {
                 alert("Por favor, selecione alguns arquivos de imagem.");
                 return;
             }
 
-            const zip = new JSZip();
-            let convertedCount = 0;
-            const totalFiles = files.length;
-            const batchSize = 10; // Número de imagens a processar por vez
-            const delay = 100; // Delay em milissegundos entre conversões
+            if (isProcessing) {
+                alert("A conversão já está em andamento. Por favor, aguarde.");
+                return;
+            }
 
-            document.getElementById('status').innerText = `Converting... ${convertedCount} of ${totalFiles}`;
-            document.querySelector('.progress-container').style.display = 'block';
+            isProcessing = true;
+            shouldStop = false;
+
+            this.disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+
+            const zip = new JSZip();
+            const batchSize = 10;
+            const delay = 100;
+
+            document.getElementById('status').innerText = `Converting... ${convertedCount} of ${files.length}`;
+            const progressContainer = document.querySelector('.progress-container');
+            const progressBar = document.getElementById('progressBar');
+            progressContainer.style.display = 'block';
 
             async function processBatch(startIndex) {
                 for (let i = startIndex; i < Math.min(startIndex + batchSize, files.length); i++) {
+                    if (shouldStop) {
+                        alert("Processamento parado.");
+                        break;
+                    }
+
                     const file = files[i];
                     if (!file.type.match('image/jpeg') && !file.type.match('image/jpg')) {
                         alert(`Tipo de arquivo não suportado: ${file.name}`);
@@ -79,7 +101,7 @@
                     img.src = imgData;
 
                     await new Promise((resolve) => {
-                        img.onload = function () {
+                        img.onload = async function () {
                             const imgWidth = img.width;
                             const imgHeight = img.height;
 
@@ -96,44 +118,55 @@
                             const pdfData = doc.output('blob');
 
                             zip.file(pdfFilename, pdfData);
-                            
-                            convertedCount++;
-                            console.log("Converted: " + pdfFilename);
-                            document.getElementById('status').innerText = `Converting... ${convertedCount} of ${totalFiles}`;
-                            document.getElementById('progressBar').style.width = `${(convertedCount / totalFiles) * 100}%`;
 
-                            resolve(); // Indicar que a conversão está completa
+                            convertedCount++;
+                            document.getElementById('status').innerText = `Converting... ${convertedCount} of ${files.length}`;
+                            progressBar.style.width = `${(convertedCount / files.length) * 100}%`;
+
+                            resolve();
                         };
 
                         img.onerror = function () {
                             console.error("Erro ao carregar imagem: " + file.name);
                             alert("Erro ao carregar imagem: " + file.name);
-                            resolve(); // Continuar mesmo com erro
+                            resolve();
                         };
                     });
 
-                    // Adiciona um delay entre as conversões
                     await new Promise(resolve => setTimeout(resolve, delay));
-                }
-
-                if (startIndex + batchSize < files.length) {
-                    await processBatch(startIndex + batchSize);
                 }
             }
 
-            await processBatch(0); // Iniciar o processamento
-            
-            // Criar o arquivo ZIP e iniciar o download
-            zip.generateAsync({ type: "blob" }).then(function (content) {
+            try {
+                let currentIndex = convertedCount; // Começa a partir do contador de convertido
+                while (currentIndex < files.length) {
+                    await processBatch(currentIndex);
+                    currentIndex += batchSize; // Atualiza o índice para o próximo lote
+                }
+
+                const content = await zip.generateAsync({ type: "blob" });
                 const zipFilename = "converted_images.zip";
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(content);
                 link.download = zipFilename;
                 link.click();
                 alert("Conversão completa! Total convertido: " + convertedCount);
-                document.getElementById('status').innerText = ""; // Limpar o status após a conclusão
-                document.querySelector('.progress-container').style.display = 'none'; // Ocultar barra de progresso
-            });
+                document.getElementById('status').innerText = "";
+
+            } catch (error) {
+                console.error("Erro ao gerar o ZIP:", error);
+                alert("Ocorreu um erro ao gerar o arquivo ZIP.");
+            } finally {
+                progressContainer.style.display = 'none';
+                progressBar.style.width = '0%';
+                isProcessing = false;
+                document.getElementById('convertBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', function () {
+            shouldStop = true; // Define que o processamento deve ser parado
         });
 
         function readFile(file) {
@@ -145,6 +178,7 @@
             });
         }
     </script>
+
     <footer class="footer">
         <p>Todos os direitos reservados.</p>
     </footer>

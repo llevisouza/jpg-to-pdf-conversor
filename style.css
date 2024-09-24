@@ -6,11 +6,13 @@ body {
     display: flex;
     flex-direction: column;
 }
+
 .section-esquerda {
-    text-align: left; /* Alinha o textoa esquerda */
+    text-align: left; /* Alinha o texto à esquerda */
     padding: 20px;
     background-color: #f0f0f0;
 }
+
 .navbar {
     display: flex;
     align-items: center;
@@ -56,11 +58,11 @@ body {
 
 .container {
     width: 300px; /* Largura do contêiner */
-    height: 200px; /* Altura do contêiner */
+    height: auto; /* Altura automática para acomodar o conteúdo */
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Alinha os itens ao topo */
-    align-items: center; /* Alinha os itens à esquerda */
+    justify-content: space-between; /* Alinha os itens com espaço entre eles */
+    align-items: center; /* Alinha os itens ao centro */
     padding: 20px;
     background-color: #ffffff; /* Cor de fundo do contêiner */
     border: 1px solid #283172; /* Borda do contêiner */
@@ -72,7 +74,7 @@ h1 {
     margin-bottom: 20px;
 }
 
-input, button {
+input {
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;
@@ -83,10 +85,15 @@ button {
     cursor: pointer;
     background-color: #283172;
     color: white;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #283172;
+    margin-left: auto; /* Alinha o botão ao lado direito */
 }
 
 button:hover {
-    background-color: #575757;
+    background-color: #172058;
 }
 
 .marca-salvadorcard {
@@ -105,6 +112,7 @@ button:hover {
     width: 100%;
     bottom: 0;
 }
+
 /* Adicione isso ao seu arquivo style.css */
 .progress-container {
     display: none; /* Inicialmente oculto */
@@ -119,7 +127,6 @@ button:hover {
     background-color: #283172; /* Cor da barra */
     border-radius: 5px;
 }
-
 
 #status {
     margin-top: 10px; /* Espaço acima do texto de status */
