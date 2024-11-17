@@ -29,9 +29,7 @@ body {
     margin-right: 20px; /* Espaço entre o logo e o menu */
 }
 
-.navbar-logo img {
-    height: 50px;
-}
+
 
 .navbar-menu {
     list-style-type: none;
